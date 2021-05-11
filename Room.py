@@ -3,16 +3,12 @@ from Guest import Guest
 class Room:
 
     def __init__(self, floor_number: str, room_number: str) -> None:
-        self.guest = None
         self.floor_number = floor_number
         self.number = room_number
+        self.is_booked = False
 
-    def is_booked(self) -> bool:
-        return bool(self.guest)
-
-    def book(self, guest: Guest) -> None:
-        self.guest = guest
+    def book(self) -> None:
+        self.is_booked = True
 
     def clear(self) -> None:
-        self.guest = None
-        
+        self.is_booked = False

@@ -1,8 +1,8 @@
-# TODO: add specific type for input, output
 from Floor import Floor
 from Keycard import Keycard
 from Room import Room
 from Guest import Guest
+from GuestRecord import GuestRecord
 
 class Hotel:
     
@@ -17,7 +17,12 @@ class Hotel:
 
         for keycard_number in range(1, keycard_count + 1):
             self.keycards.append(Keycard(str(keycard_number)))
+
+        self.guest_records = []
         
+    def record(self, room: Room, guest: Guest, keycard: Keycard) -> None:
+        self.guest_records.append(GuestRecord(guest, room, keycard))
+
     def get_floor_by_floor_number(self, floor_number: str) -> Floor:
         floors = list(filter(lambda floor: floor.number == floor_number, self.floors))
         floor_is_exist = len(floors) != 0
@@ -75,11 +80,17 @@ class Hotel:
             return None
         return rooms[0]
 
-    def book(self, room: Room, guest: Guest) -> Keycard:
+    def book(self, room_number: str, guest: Guest) -> Keycard:
+        room = self.get_room_by_room_number
+        
+        if(room.is_booked):
+           raise NameError(f"Don't have room {room_number}")
+        
+
         keycard = self.get_available_keycard()
       
-        room.book(guest)            
-        keycard.assign(guest, room.number)
+        room.book()            
+        keycard.assign()
         
         return keycard
  

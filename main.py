@@ -51,16 +51,7 @@ def checkout_by_keycard_number(hotel: Hotel, keycard_number: str, guest_name: st
         return f"Room {room.number} is checkout."
         
 def book_by_room_number(hotel: Hotel, room_number: str, guest: Guest) -> str:
-    room = hotel.get_room_by_room_number(room_number)
-    
-    if(not room): # TODO: learn try catch
-        return f"Don't have room {room_number}"
-    if(room.is_booked()):
-        return f"Cannot book room {room_number} for {guest.name}, The room is currently booked by {room.guest.name}."
-    else: # TODO: don't have to use
-        used_keycard = hotel.book(room, guest)
-
-        print(f"Room {room_number} is booked by {guest.name} with keycard number {used_keycard.number}.") # TODO: change print -> return 
+ 
 
 def list_available_room_number(hotel: Hotel) -> list: # TODO: don't have to use
     available_rooms = hotel.list_available_room()
@@ -85,7 +76,15 @@ for line in lines:
 
         guest = Guest(guest_name, guest_age)
 
-        print(book_by_room_number(hotel, room_number, guest))
+        room = hotel.get_room_by_room_number(room_number)
+    
+        if(not room): # TODO: learn try catch
+            print(f"Don't have room {room_number}")
+        if(room.is_booked()):
+            print(f"Cannot book room {room_number} for {guest.name}, The room is currently booked by {room.guest.name}.")
+        else: # TODO: don't have to use
+            used_keycard = hotel.book(room, guest)
+            print(f"Room {room_number} is booked by {guest.name} with keycard number {used_keycard.number}.") # TODO: change print -> return
     elif(command == "list_available_rooms"):
         print(", ".join(list_available_room_number(hotel)))
     elif(command == "checkout"):
