@@ -1,1 +1,1 @@
-# aqoda
+project for hotel management
