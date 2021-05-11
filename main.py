@@ -5,7 +5,7 @@ from Keycard import Keycard
 from Room import Room
 from Guest import Guest
 
-file = open("./input.txt","r")
+file = open("input.txt","r")
 lines = file.readlines()
 file.close()
 

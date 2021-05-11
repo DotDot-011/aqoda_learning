@@ -7,15 +7,10 @@ from Guest import Guest
 class Hotel:
     
     def __init__(self, floor_count: int, room_count_per_floor: int) -> None: 
-        self.room_count_per_floor = room_count_per_floor
         self.floors = []
         
         for floor_number in range(1, floor_count + 1):
-            floor = Floor(str(floor_number))
-            
-            for room_number in range(1, room_count_per_floor + 1): 
-                floor.add_room(Room(str(floor_number), str(floor_number * 100 + room_number)))
-            self.floors.append(floor)
+            self.floors.append(Floor(str(floor_number), room_count_per_floor))
         
         self.keycards = [] 
         keycard_count = floor_count * room_count_per_floor
