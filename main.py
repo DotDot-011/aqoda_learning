@@ -4,7 +4,7 @@ from Keycard import Keycard
 from Room import Room
 from Guest import Guest
 
-file = open("input.txt","r")
+file = open("ErrorInput.txt","r")
 lines = file.readlines()
 file.close()
 
@@ -20,6 +20,7 @@ for line in lines:
         hotel = Hotel(floor_count, room_count_per_floor)
 
         print(f"Hotel created with {floor_count} floor(s), {room_count_per_floor} room(s) per floor.")
+    
     elif(command == "book"):
         room_number = parameters[0]
         guest_name = parameters[1]
@@ -30,13 +31,16 @@ for line in lines:
             new_guest_record = hotel.book(room_number, guest)
         
             print(f"Room {new_guest_record.room.number} is booked by {new_guest_record.guest.name} with keycard number {new_guest_record.keycard.number}.") 
+        
         except IOError as error_message:
             print(error_message)
+
     elif(command == "list_available_rooms"):
         available_rooms = hotel.list_available_room()
         available_room_numbers = list(map(lambda room: room.number, available_rooms))
         
         print(", ".join(available_room_numbers))
+
     elif(command == "checkout"):
         keycard_number = parameters[0]
         guest_name = parameters[1]
@@ -45,13 +49,16 @@ for line in lines:
             checkouted_guest_record = hotel.checkout(keycard_number, guest_name)
 
             print(f"Room {checkouted_guest_record.room.number} is checkout.")
+        
         except IOError as error_message:
             print(error_message)
+
     elif(command == "list_guest"):
         guests = hotel.list_guest()
         guest_names = list(map(lambda guest: guest.name, guests))
 
         print(", ".join(guest_names))
+
     elif(command == "get_guest_in_room"):
         room_number = parameters[0]
 
@@ -59,8 +66,10 @@ for line in lines:
             guest = hotel.get_guest_by_room_number(room_number)
             
             print(guest.name)
+
         except IOError as error_message:
             print(error_message)
+
     elif(command == "list_guest_by_age"):
         comparison_symbol = parameters[0]
         age = int(parameters[1])
@@ -70,8 +79,10 @@ for line in lines:
             guest_names = list(map(lambda guest: guest.name, guests))
 
             print(", ".join(guest_names))
+
         except IOError as error_message:
             print(error_message)
+    
     elif(command == "list_guest_by_floor"):
         floor_number = parameters[0]
 
@@ -80,8 +91,10 @@ for line in lines:
             guest_names = list(map(lambda guest: guest.name, guests))
 
             print(", ".join(guest_names))
+    
         except IOError as error_message:
             print(error_message)
+    
     elif(command == "checkout_guest_by_floor"):
         floor_number = parameters[0]
 
@@ -90,6 +103,7 @@ for line in lines:
             room_numbers = list(map(lambda record: record.room.number, checkouted_guest_records))
 
             print(f"Room {', '.join(room_numbers)} are checkout.")
+    
         except IOError as error_message:
             print(error_message)
 
@@ -106,5 +120,6 @@ for line in lines:
             used_keycards_number = list(map(lambda record: record.keycard.number, new_guest_records))
 
             print(f"Room {', '.join(booked_room_numbers)} are booked with keycard number {', '.join(used_keycards_number)}")
+    
         except IOError as error_message:
             print(error_message)
