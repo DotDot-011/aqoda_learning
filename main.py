@@ -20,15 +20,15 @@ for line in lines:
         hotel = Hotel(floor_count, room_count_per_floor)
 
         print(f"Hotel created with {floor_count} floor(s), {room_count_per_floor} room(s) per floor.")
-    
+        
     elif(command == "book"):
         room_number = parameters[0]
         guest_name = parameters[1]
         guest_age = int(parameters[2])
         
-        guest = Guest(guest_name, guest_age)
+        guest = Guest(guest_name, guest_age) # TODO: Not a process make space between try 
         try:
-            new_guest_record = hotel.book(room_number, guest)
+            new_guest_record = hotel.book(room_number, guest) # TODO: "new" too specific -> rename
         
             print(f"Room {new_guest_record.room.number} is booked by {new_guest_record.guest.name} with keycard number {new_guest_record.keycard.number}.") 
         
@@ -36,6 +36,7 @@ for line in lines:
             print(error_message)
 
     elif(command == "list_available_rooms"):
+        # TODO: "available" too specific -> rename
         available_rooms = hotel.list_available_room()
         available_room_numbers = list(map(lambda room: room.number, available_rooms))
         
@@ -46,7 +47,7 @@ for line in lines:
         guest_name = parameters[1]
 
         try:
-            checkouted_guest_record = hotel.checkout(keycard_number, guest_name)
+            checkouted_guest_record = hotel.checkout(keycard_number, guest_name) # TODO: "checkouted" too specific -> rename
 
             print(f"Room {checkouted_guest_record.room.number} is checkout.")
         
@@ -99,7 +100,7 @@ for line in lines:
         floor_number = parameters[0]
 
         try:
-            checkouted_guest_records = hotel.checkout_by_floor_number(floor_number)
+            checkouted_guest_records = hotel.checkout_by_floor_number(floor_number) # TODO: "checkouted" too specific -> rename
             room_numbers = list(map(lambda record: record.room.number, checkouted_guest_records))
 
             print(f"Room {', '.join(room_numbers)} are checkout.")
@@ -115,6 +116,7 @@ for line in lines:
         guest = Guest(guest_name, guest_age)
         
         try:
+            # TODO: "new", "booked", "used" too specific -> rename
             new_guest_records = hotel.book_by_floor_number(floor_number, guest)
             booked_room_numbers = list(map(lambda record: record.room.number, new_guest_records))
             used_keycards_number = list(map(lambda record: record.keycard.number, new_guest_records))

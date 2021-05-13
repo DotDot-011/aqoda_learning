@@ -1,3 +1,5 @@
+# TODO: (!) "value = list(something)" also announce variable not process -> make space between variable and process
+# TODO: (*) change early return case
 from typing import IO
 from Keycard import Keycard
 from Room import Room
@@ -15,77 +17,77 @@ class Hotel:
         self.keycards = []
         keycard_count = floor_count * room_count_per_floor
 
-        for keycard_number in range(1, keycard_count + 1):
+        for keycard_number in range(1, keycard_count + 1): # TODO: use map
             self.keycards.append(Keycard(str(keycard_number)))
 
     def create_rooms(self, floor_count: int, room_count_per_floor: int) -> None:
         self.rooms = []
 
-        for floor_number in range(1, floor_count + 1):
+        for floor_number in range(1, floor_count + 1): # TODO: prefer map than append
             for room_number in range(1, room_count_per_floor + 1):
                 self.rooms.append(Room(str(floor_number), str(room_number + (int(floor_number) * 100))))
 
     def get_keycard_by_keycard_number(self, keycard_number: str) -> Keycard:
         keycards = list(filter(lambda keycard: keycard.number == keycard_number, self.keycards))
-        if(keycards):
-            return  keycards[0]
+        if(keycards): # TODO: Not a process make space between if
+            return  keycards[0]  # TODO: early return use for check error
         
         raise IOError(f"Don't have keycard {keycard_number}")
 
-    def get_available_keycard(self) -> Keycard:
+    def get_available_keycard(self) -> Keycard: # TODO: change return type
         used_keycards = list(map(lambda record: record.keycard, self.guest_records))
         available_keycards = list(filter(lambda keycard: keycard not in used_keycards, self.keycards))
-        if(available_keycards):
+        if(available_keycards): #!
             return available_keycards[0]
 
-        else:
+        else: # TODO: change early return case, use raise instead
             return None
 
     def get_room_by_room_number(self, room_number: str) -> Room: 
         rooms = list(filter(lambda room: room.number == room_number, self.rooms))
-        if(rooms):
+        if(rooms): #!
             return rooms[0]
 
-        raise IOError(f"Don't have room {room_number}")
+        raise IOError(f"Don't have room {room_number}") #*
 
     def get_guest_by_room_number(self, room_number: str) -> Guest:
         room = self.get_room_by_room_number(room_number)
         guest_records = list(filter(lambda record: record.room == room, self.guest_records))
-        if(guest_records):
+        if(guest_records): #!
             return guest_records[0].guest
         
-        raise IOError(f"Room {room_number} has no guest")
+        raise IOError(f"Room {room_number} has no guest") #*
     
-    def get_guest_record_by_room_number(self, room_number: str) -> GuestRecord:
+    def get_guest_record_by_room_number(self, room_number: str) -> GuestRecord: # TODO: change return type for None
         room = self.get_room_by_room_number(room_number)
         guest_records = list(filter(lambda record: record.room == room, self.guest_records))
-        if(guest_records):
+        if(guest_records): #!
             return guest_records[0]
         
-        return None
+        return None #*
 
     def get_guest_record_by_keycard_number(self, keycard_number: str) -> GuestRecord:
         keycard = self.get_keycard_by_keycard_number(keycard_number)
         guest_records = list(filter(lambda record: record.keycard == keycard, self.guest_records))    
-        if(guest_records):
+        if(guest_records): #!
             return guest_records[0]
         
-        return None
+        return None #*
 
     def list_room_by_floor_number(self, floor_number: str) -> list:
         rooms = list(filter(lambda room: room.floor_number == floor_number, self.rooms))
-        if(rooms):
+        if(rooms): #!
             return rooms
         
-        raise IOError(f"Don't have floor {floor_number}")
+        raise IOError(f"Don't have floor {floor_number}") #*
 
-    def book(self, room_number: str, guest: Guest) -> Keycard:
+    def book(self, room_number: str, guest: Guest) -> Keycard: # TODO: change return type to record
         guest_record = self.get_guest_record_by_room_number(room_number)
-        if(guest_record):
+        if(guest_record): #!
             raise IOError(f"Cannot book room {room_number} for {guest.name}, The room is currently booked by {guest_record.guest.name}.")
         
         room = self.get_room_by_room_number(room_number)
-        keycard = self.get_available_keycard()
+        keycard = self.get_available_keycard() # TODO: handle case None keycard
         new_guest_record = GuestRecord(guest, room, keycard)
         self.guest_records.append(new_guest_record)
         
@@ -99,7 +101,7 @@ class Hotel:
 
     def checkout(self, keycard_number: str, guest_name: str) -> Room:
         guest_record = self.get_guest_record_by_keycard_number(keycard_number)
-        if(not guest_record):
+        if(not guest_record): #!
             raise IOError(f"This keycard haven't yet assigned")
 
         if(guest_record.guest.name != guest_name):
@@ -158,7 +160,7 @@ class Hotel:
     def book_by_floor_number(self, floor_number: str, guest: Guest) -> list:
         rooms = self.list_room_by_floor_number(floor_number)
         guest_records = list(filter(lambda record: record.room in rooms, self.guest_records))
-        if(guest_records):
+        if(guest_records): #!
             raise IOError(f"Cannot book floor {floor_number} for {guest.name}.")
 
         new_guest_records = list(map(lambda room: self.book(room.number, guest), rooms))
