@@ -1,7 +1,4 @@
-from typing import IO
 from Hotel import Hotel
-from Keycard import Keycard
-from Room import Room
 from Guest import Guest
 
 file = open("ErrorInput.txt","r")
@@ -26,33 +23,33 @@ for line in lines:
         guest_name = parameters[1]
         guest_age = int(parameters[2])
         
-        guest = Guest(guest_name, guest_age) # TODO: Not a process make space between try 
+        guest = Guest(guest_name, guest_age)
+        
         try:
-            new_guest_record = hotel.book(room_number, guest) # TODO: "new" too specific -> rename
+            guest_record = hotel.book(room_number, guest) 
         
-            print(f"Room {new_guest_record.room.number} is booked by {new_guest_record.guest.name} with keycard number {new_guest_record.keycard.number}.") 
+            print(f"Room {guest_record.room.number} is booked by {guest_record.guest.name} with keycard number {guest_record.keycard.number}.") 
         
-        except IOError as error_message:
-            print(error_message)
+        except:
+            pass
 
     elif(command == "list_available_rooms"):
-        # TODO: "available" too specific -> rename
-        available_rooms = hotel.list_available_room()
-        available_room_numbers = list(map(lambda room: room.number, available_rooms))
+        rooms = hotel.list_available_room()
+        room_numbers = list(map(lambda room: room.number, rooms))
         
-        print(", ".join(available_room_numbers))
+        print(", ".join(room_numbers))
 
     elif(command == "checkout"):
         keycard_number = parameters[0]
         guest_name = parameters[1]
 
         try:
-            checkouted_guest_record = hotel.checkout(keycard_number, guest_name) # TODO: "checkouted" too specific -> rename
+            guest_record = hotel.checkout(keycard_number, guest_name)
 
-            print(f"Room {checkouted_guest_record.room.number} is checkout.")
+            print(f"Room {guest_record.room.number} is checkout.")
         
-        except IOError as error_message:
-            print(error_message)
+        except:
+            pass
 
     elif(command == "list_guest"):
         guests = hotel.list_guest()
@@ -68,8 +65,8 @@ for line in lines:
             
             print(guest.name)
 
-        except IOError as error_message:
-            print(error_message)
+        except:
+            pass
 
     elif(command == "list_guest_by_age"):
         comparison_symbol = parameters[0]
@@ -81,9 +78,9 @@ for line in lines:
 
             print(", ".join(guest_names))
 
-        except IOError as error_message:
-            print(error_message)
-    
+        except:
+            pass
+
     elif(command == "list_guest_by_floor"):
         floor_number = parameters[0]
 
@@ -93,20 +90,20 @@ for line in lines:
 
             print(", ".join(guest_names))
     
-        except IOError as error_message:
-            print(error_message)
+        except:
+            pass
     
     elif(command == "checkout_guest_by_floor"):
         floor_number = parameters[0]
 
         try:
-            checkouted_guest_records = hotel.checkout_by_floor_number(floor_number) # TODO: "checkouted" too specific -> rename
-            room_numbers = list(map(lambda record: record.room.number, checkouted_guest_records))
+            guest_records = hotel.checkout_by_floor_number(floor_number)
+            room_numbers = list(map(lambda record: record.room.number, guest_records))
 
             print(f"Room {', '.join(room_numbers)} are checkout.")
     
-        except IOError as error_message:
-            print(error_message)
+        except:
+            pass
 
     elif(command == "book_by_floor"):
         floor_number = parameters[0]
@@ -116,12 +113,11 @@ for line in lines:
         guest = Guest(guest_name, guest_age)
         
         try:
-            # TODO: "new", "booked", "used" too specific -> rename
-            new_guest_records = hotel.book_by_floor_number(floor_number, guest)
-            booked_room_numbers = list(map(lambda record: record.room.number, new_guest_records))
-            used_keycards_number = list(map(lambda record: record.keycard.number, new_guest_records))
+            guest_records = hotel.book_by_floor_number(floor_number, guest)
+            room_numbers = list(map(lambda record: record.room.number, guest_records))
+            keycards_number = list(map(lambda record: record.keycard.number, guest_records))
 
-            print(f"Room {', '.join(booked_room_numbers)} are booked with keycard number {', '.join(used_keycards_number)}")
+            print(f"Room {', '.join(room_numbers)} are booked with keycard number {', '.join(keycards_number)}")
     
-        except IOError as error_message:
-            print(error_message)
+        except:
+            pass

@@ -1,10 +1,9 @@
-# TODO: (!) "value = list(something)" also announce variable not process -> make space between variable and process
-# TODO: (*) change early return case
-from typing import IO
+from typing import List,IO, Union
 from Keycard import Keycard
 from Room import Room
 from Guest import Guest
 from GuestRecord import GuestRecord
+from ErrorCase import CannotBook, CannotBookAllFloor, CannotCheckout, FloorNotFound, GuestNotFound, KeycardNotAssign, KeycardNotFound, NoKeycardAvailable, RoomNotFound, WrongSymbol
 
 class Hotel:
     
@@ -13,108 +12,123 @@ class Hotel:
         self.create_keycards(floor_count, room_count_per_floor) 
         self.guest_records = []
 
-    def create_keycards(self, floor_count: int, room_count_per_floor: int) -> None:
-        self.keycards = []
-        keycard_count = floor_count * room_count_per_floor
+    def __generate_room_numbers(self, floor_count: int, room_count_per_floor: int) -> List[int]:
+        temp_room_numbers = list(range(1, room_count_per_floor + 1))
+        floor_numbers = list(range(1, floor_count + 1))
+        room_numbers = [room_number + (floor_number * 100) for room_number in temp_room_numbers for floor_number in floor_numbers]
+        
+        return room_numbers
 
-        for keycard_number in range(1, keycard_count + 1): # TODO: use map
-            self.keycards.append(Keycard(str(keycard_number)))
+    def __generate_keycard_numbers(self, floor_count: int, room_count_per_floor: int) -> List[int]:
+        keycard_count = floor_count * room_count_per_floor
+        keycard_numbers = list(range(1, keycard_count + 1))
+
+        return keycard_numbers
+
+    def create_keycards(self, floor_count: int, room_count_per_floor: int) -> None:
+        keycard_numbers = self.__generate_keycard_numbers(floor_count, room_count_per_floor)
+        self.keycards = list(map(lambda keycard_number: Keycard(str(keycard_number)), keycard_numbers))    
 
     def create_rooms(self, floor_count: int, room_count_per_floor: int) -> None:
-        self.rooms = []
-
-        for floor_number in range(1, floor_count + 1): # TODO: prefer map than append
-            for room_number in range(1, room_count_per_floor + 1):
-                self.rooms.append(Room(str(floor_number), str(room_number + (int(floor_number) * 100))))
+        room_numbers = self.__generate_room_numbers(floor_count, room_count_per_floor)
+        self.rooms = list(map(lambda room_number: Room(str(room_number // 100), str(room_number)), room_numbers))
 
     def get_keycard_by_keycard_number(self, keycard_number: str) -> Keycard:
         keycards = list(filter(lambda keycard: keycard.number == keycard_number, self.keycards))
-        if(keycards): # TODO: Not a process make space between if
-            return  keycards[0]  # TODO: early return use for check error
         
-        raise IOError(f"Don't have keycard {keycard_number}")
+        if(not keycards):
+            raise KeycardNotFound(keycard_number)
 
-    def get_available_keycard(self) -> Keycard: # TODO: change return type
+        return keycards[0]
+        
+    def get_available_keycard(self) -> Keycard:
         used_keycards = list(map(lambda record: record.keycard, self.guest_records))
         available_keycards = list(filter(lambda keycard: keycard not in used_keycards, self.keycards))
-        if(available_keycards): #!
-            return available_keycards[0]
+        
+        if(not available_keycards):
+            raise NoKeycardAvailable()
 
-        else: # TODO: change early return case, use raise instead
-            return None
+        return available_keycards[0]
 
     def get_room_by_room_number(self, room_number: str) -> Room: 
         rooms = list(filter(lambda room: room.number == room_number, self.rooms))
-        if(rooms): #!
-            return rooms[0]
-
-        raise IOError(f"Don't have room {room_number}") #*
+        
+        if(not rooms):
+            raise RoomNotFound(room_number)
+            
+        return rooms[0]
 
     def get_guest_by_room_number(self, room_number: str) -> Guest:
         room = self.get_room_by_room_number(room_number)
         guest_records = list(filter(lambda record: record.room == room, self.guest_records))
-        if(guest_records): #!
-            return guest_records[0].guest
         
-        raise IOError(f"Room {room_number} has no guest") #*
+        if(not guest_records):
+            raise GuestNotFound(room_number)
+        
+        return guest_records[0].guest
     
-    def get_guest_record_by_room_number(self, room_number: str) -> GuestRecord: # TODO: change return type for None
+    def get_guest_record_by_room_number(self, room_number: str) -> Union[GuestRecord, None]:
         room = self.get_room_by_room_number(room_number)
         guest_records = list(filter(lambda record: record.room == room, self.guest_records))
-        if(guest_records): #!
-            return guest_records[0]
         
-        return None #*
+        if(not guest_records):
+            return None
+            
+        return guest_records[0]
 
-    def get_guest_record_by_keycard_number(self, keycard_number: str) -> GuestRecord:
+    def get_guest_record_by_keycard_number(self, keycard_number: str) -> Union[GuestRecord, None]:
         keycard = self.get_keycard_by_keycard_number(keycard_number)
         guest_records = list(filter(lambda record: record.keycard == keycard, self.guest_records))    
-        if(guest_records): #!
-            return guest_records[0]
         
-        return None #*
+        if(not guest_records):
+            return None
+        
+        return guest_records[0]
 
-    def list_room_by_floor_number(self, floor_number: str) -> list:
+    def list_room_by_floor_number(self, floor_number: str) -> List[Room]:
         rooms = list(filter(lambda room: room.floor_number == floor_number, self.rooms))
-        if(rooms): #!
-            return rooms
         
-        raise IOError(f"Don't have floor {floor_number}") #*
+        if(not rooms):
+            raise FloorNotFound(floor_number)
+        
+        return rooms
 
-    def book(self, room_number: str, guest: Guest) -> Keycard: # TODO: change return type to record
+    def book(self, room_number: str, guest: Guest) -> GuestRecord:
         guest_record = self.get_guest_record_by_room_number(room_number)
-        if(guest_record): #!
-            raise IOError(f"Cannot book room {room_number} for {guest.name}, The room is currently booked by {guest_record.guest.name}.")
+        
+        if(guest_record): 
+            raise CannotBook(room_number, guest, guest_record)
         
         room = self.get_room_by_room_number(room_number)
-        keycard = self.get_available_keycard() # TODO: handle case None keycard
+        keycard = self.get_available_keycard()
         new_guest_record = GuestRecord(guest, room, keycard)
         self.guest_records.append(new_guest_record)
         
         return new_guest_record
  
-    def list_available_room(self) -> list: 
+    def list_available_room(self) -> List[Room]: 
         booked_rooms = list(map(lambda record: record.room, self.guest_records))
         available_rooms = list(filter(lambda room: room not in booked_rooms, self.rooms))
 
         return available_rooms
 
-    def checkout(self, keycard_number: str, guest_name: str) -> Room:
+    def checkout(self, keycard_number: str, guest_name: str) -> GuestRecord:
         guest_record = self.get_guest_record_by_keycard_number(keycard_number)
-        if(not guest_record): #!
-            raise IOError(f"This keycard haven't yet assigned")
+        
+        if(not guest_record):
+            raise KeycardNotAssign()
 
         if(guest_record.guest.name != guest_name):
-            raise IOError(f"Only {guest_record.guest.name} can checkout with keycard number {keycard_number}.")
+            raise CannotCheckout(guest_record, keycard_number)
         
         self.guest_records.remove(guest_record)
 
         return guest_record
 
-    def list_guest(self) -> list:
+    def list_guest(self) -> List[Guest]:
         return list(map(lambda record: record.guest, self.guest_records))
     
-    def list_guest_by_age(self, comparison_symbol: str, age: int) -> list:
+    def list_guest_by_age(self, comparison_symbol: str, age: int) -> List[Guest]:
         if(comparison_symbol == '<'):
             guest_records = list(filter(lambda record: record.guest.age < age, self.guest_records))
             guests = list(map(lambda record: record.guest, guest_records))
@@ -139,29 +153,30 @@ class Hotel:
             guest_records = list(filter(lambda record: record.guest.age == age, self.guest_records))
             guests = list(map(lambda record: record.guest, guest_records))
         else:
-            raise IOError("Not correct symbol")
+            raise WrongSymbol()
 
         return guests
 
-    def list_guest_by_floor_number(self, floor_number: str) -> list:
+    def list_guest_by_floor_number(self, floor_number: str) -> List[Guest]:
         rooms = self.list_room_by_floor_number(floor_number)
         guest_records = list(filter(lambda record: record.room in rooms, self.guest_records))
         guests = list(map(lambda record: record.guest, guest_records))
 
         return guests
 
-    def checkout_by_floor_number(self, floor_number: str) -> list:
+    def checkout_by_floor_number(self, floor_number: str) -> List[GuestRecord]:
         rooms = self.list_room_by_floor_number(floor_number)
         guest_records = list(filter(lambda record: record.room in rooms, self.guest_records))
         checkouted_guest_records = list(map(lambda record: self.checkout(record.keycard.number, record.guest.name), guest_records))
 
         return checkouted_guest_records
 
-    def book_by_floor_number(self, floor_number: str, guest: Guest) -> list:
+    def book_by_floor_number(self, floor_number: str, guest: Guest) -> List[GuestRecord]:
         rooms = self.list_room_by_floor_number(floor_number)
         guest_records = list(filter(lambda record: record.room in rooms, self.guest_records))
-        if(guest_records): #!
-            raise IOError(f"Cannot book floor {floor_number} for {guest.name}.")
+        
+        if(guest_records):
+            raise CannotBookAllFloor(floor_number, guest)
 
         new_guest_records = list(map(lambda room: self.book(room.number, guest), rooms))
             
